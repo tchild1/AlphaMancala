@@ -9,6 +9,8 @@ import pickle
 from gameEnvironment import PLAYER_ONE_PITS, PLAYER_TWO_PITS, PLAYER_ONE, PLAYER_TWO, HISTORY_LENGTH, FUTURE_TURNS_TO_PREDICT, EXPORT_FOLDER, EXPORT_FILENAME, EXPORT_LOSSES_FILENAME
 from typing import TYPE_CHECKING
 from IPython import get_ipython
+from google.colab import drive
+drive.mount('/content/drive')
 
 
 if TYPE_CHECKING:
@@ -139,6 +141,8 @@ class AlphaMancala():
             in_colab = 'google.colab' in str(get_ipython())
         except:
             in_colab = False
+
+        print(f'in colab: {in_colab}')
 
         # check if in Colab and Drive is mounted
         if in_colab:
