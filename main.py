@@ -1,5 +1,4 @@
 from mancalaGUI import MancalaGUI
-import tkinter as tk
 
 
 def main(train):
@@ -7,6 +6,7 @@ def main(train):
         root = None
         MancalaGUI(root, train)
     else:
+        import tkinter as tk
         root = tk.Tk()
         MancalaGUI(root, train)
         root.mainloop()

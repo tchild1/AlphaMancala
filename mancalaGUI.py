@@ -1,5 +1,3 @@
-import tkinter as tk
-from tkinter import messagebox
 from alphaMancala import AlphaMancala, AlphaMancalaMind
 from mancalaGame import MancalaGame
 from gameEnvironment import PLAYER_ONE, PLAYER_TWO, PLAYER_ONE_PITS, PLAYER_TWO_PITS, WAIT_TIME, PLAYER_ONE_STORE, PLAYER_TWO_STORE, EXPORT_EVERY_GAMES, NUMBER_OF_TRAINING_GAMES
@@ -15,10 +13,14 @@ class MancalaGUI:
         regardless, this class acts as an interface between the players
         and the game logic.
         '''
+        if not train:
+            # when training do not use the UI. 
+            import tkinter as tk
+            self.tk = tk
+            self.root: tk.Tk = root
 
-        self.root: tk.Tk = root
         self.game: MancalaGame = MancalaGame()
-        self.is_training: bool = False
+        self.is_training: bool = train
 
         if train:
             self.train()
@@ -42,13 +44,13 @@ class MancalaGUI:
             self.take_turn()
 
     def play_again_question(self) -> None:
-        self.play_again_window = tk.Toplevel(self.root)
+        self.play_again_window = self.tk.Toplevel(self.root)
         self.play_again_window.title("Play Again?")
         self.play_again_window.geometry("300x200")
         
-        tk.Label(self.play_again_window, text="Play Again?\nSelect:", font=("Arial", 14)).pack(pady=10)
+        self.tk.Label(self.play_again_window, text="Play Again?\nSelect:", font=("Arial", 14)).pack(pady=10)
         
-        yes_btn = tk.Button(
+        yes_btn = self.tk.Button(
             self.play_again_window, 
             text="Yes", 
             font=("Arial", 12), 
@@ -56,7 +58,7 @@ class MancalaGUI:
         )
         yes_btn.pack(pady=5)
     
-        no_btn = tk.Button(
+        no_btn = self.tk.Button(
             self.play_again_window, 
             text="No", 
             font=("Arial", 12), 
@@ -87,13 +89,13 @@ class MancalaGUI:
         '''
 
         # Create a window for selecting the play type
-        self.play_type_window: tk.Toplevel = tk.Toplevel(self.root)
+        self.play_type_window = self.tk.Toplevel(self.root)
         self.play_type_window.title("Select Play Type")
         self.play_type_window.geometry("300x300")
         
-        tk.Label(self.play_type_window, text="Select Play Type:", font=("Arial", 14)).pack(pady=10)
+        self.tk.Label(self.play_type_window, text="Select Play Type:", font=("Arial", 14)).pack(pady=10)
         
-        player_vs_player_btn: tk.Button = tk.Button(
+        player_vs_player_btn = self.tk.Button(
             self.play_type_window, 
             text="Player 1 v Player 2", 
             font=("Arial", 12), 
@@ -101,7 +103,7 @@ class MancalaGUI:
         )
         player_vs_player_btn.pack(pady=5)
     
-        player_vs_bot_btn: tk.Button = tk.Button(
+        player_vs_bot_btn = self.tk.Button(
             self.play_type_window, 
             text="Player 1 v Bot", 
             font=("Arial", 12), 
@@ -109,7 +111,7 @@ class MancalaGUI:
         )
         player_vs_bot_btn.pack(pady=5)
 
-        bot_vs_bot_btn: tk.Button = tk.Button(
+        bot_vs_bot_btn = self.tk.Button(
             self.play_type_window, 
             text="Bot v Bot", 
             font=("Arial", 12), 
@@ -141,7 +143,7 @@ class MancalaGUI:
         '''
 
         self.player_one = 'player'
-        self.player_two = AlphaMancala(PLAYER_TWO)
+        self.player_two = AlphaMancala(PLAYER_TWO, self.is_training)
 
         self.play_type_window.destroy() # Close the play type selection window
         
@@ -156,8 +158,8 @@ class MancalaGUI:
         option is chosen.
         '''
 
-        self.player_one = AlphaMancala(PLAYER_ONE)
-        self.player_two = AlphaMancala(PLAYER_TWO)
+        self.player_one = AlphaMancala(PLAYER_ONE, self.is_training)
+        self.player_two = AlphaMancala(PLAYER_TWO, self.is_training)
 
         self.play_type_window.destroy() # Close the play type selection window
         
@@ -253,7 +255,7 @@ class MancalaGUI:
             widget.destroy()
         
         # Stores
-        p2_store: tk.Label = tk.Label(
+        p2_store = self.tk.Label(
             self.root, 
             text=str(self.game.board[13]), 
             font=("Arial", 14, "bold"), 
@@ -264,7 +266,7 @@ class MancalaGUI:
         )
         p2_store.grid(row=1, column=0, rowspan=2)
         
-        p1_store: tk.Label = tk.Label(
+        p1_store = self.tk.Label(
             self.root, 
             text=str(self.game.board[6]), 
             font=("Arial", 14, "bold"), 
@@ -278,7 +280,7 @@ class MancalaGUI:
         # Player 2's pits (top row, right to left)
         for i in range(12, 6, -1):
             bg_color = "#32CD32" if self.game.current_player == 1 and self.game.board[i] > 0 else "SystemButtonFace"
-            tk.Button(
+            self.tk.Button(
                 self.root, 
                 text=str(self.game.board[i]), 
                 font=("Arial", 12), 
@@ -291,7 +293,7 @@ class MancalaGUI:
         # Player 1's pits (bottom row, left to right)
         for i in range(0, 6):
             bg_color = "#32CD32" if self.game.current_player == 0 and self.game.board[i] > 0 else "SystemButtonFace"
-            tk.Button(
+            self.tk.Button(
                 self.root, 
                 text=str(self.game.board[i]), 
                 font=("Arial", 12), 
@@ -302,7 +304,7 @@ class MancalaGUI:
             ).grid(row=2, column=i+1)
         
         # Player turn display
-        tk.Label(self.root, text=f"Current Player: {'Player 1' if self.game.current_player == 0 else 'Player 2'}", font=("Arial", 12, "bold"), bg="#DAA520").grid(row=3, column=1, columnspan=6)
+        self.tk.Label(self.root, text=f"Current Player: {'Player 1' if self.game.current_player == 0 else 'Player 2'}", font=("Arial", 12, "bold"), bg="#DAA520").grid(row=3, column=1, columnspan=6)
     
     def make_move(self, pit: int) -> None:
         '''
@@ -312,6 +314,7 @@ class MancalaGUI:
         result = self.game.move(pit)
         if result is not True:
             if not self.is_training:
+                from tkinter import messagebox
                 messagebox.showerror("Invalid Move", result)
             else:
                 print('Invalid Move: ', result)
@@ -324,6 +327,7 @@ class MancalaGUI:
         if self.game.winner is not None:
             winner = f'Player {self.game.winner+1}'
             if not self.is_training:
+                from tkinter import messagebox
                 messagebox.showinfo("Game Over", f"Game over! {winner} wins!")
                 self.play_again_question()
             else:
