@@ -52,45 +52,71 @@ class AlphaMancala():
 
     def get_future_values(self, current_state, num_turns_in_advance):
 
-        # if an exaustive search is too expensive, can use the policy network which learned to mimic the value network's exaustive search
-        # if not self.is_training:
-        #     policy_logits, value, next_state = self.model(current_state)
-        #     return policy_logits
-
-        # this is assuming I am maximiizing the players turn every turn. Instead, the player switches every turn...
-
+        # where in the state is the player turn flag
         player_index = len(PLAYER_ONE_PITS) + len(PLAYER_TWO_PITS) + 2
+
+        # who is the current player according to the state?
         current_players_pits = PLAYER_ONE_PITS if current_state[player_index] < 0.5 else PLAYER_TWO_PITS
 
-        if num_turns_in_advance > 0:
-            action_values = [float('-inf')] * len(current_players_pits)
+        # init to -inf for all choices
+        action_values = [float('-inf')] * len(current_players_pits)
+
+        if num_turns_in_advance > 1:
 
             for pit in range(len(current_players_pits)):
-                policy_logits, value, next_state = self.model(current_state, pit)
-                values_for_this_choice = self.get_future_values(next_state, num_turns_in_advance-1)
+                # for each choice in pit
+                policy_logits, value, next_state = self.model(current_state, pit) # given this state (board, turn, and history), what will the state (board, turn, and history) be if the the current player chooses this pit?
+                
+                next_player = PLAYER_ONE if next_state[player_index] < 0.5 else PLAYER_TWO # in that next state, who's turn is it?
+                
+                future_values_for_this_choice = self.get_future_values(next_state, num_turns_in_advance-1) # this evaluatates how good each option is for the current player
+                
                 if self.is_training:
-                    # when training use softmax when deciding which action to take
-                    probs = self.softmax(values_for_this_choice)
-                    selected_index = np.random.choice(len(values_for_this_choice), p=probs)
-                    action_values[pit] = values_for_this_choice[selected_index]
-                   
+                    # if training use softmax to explore better
+
+                    if next_player == self.player_number:
+                        # when I go again, max of options
+                        probs = self.softmax(future_values_for_this_choice)
+
+                    else:
+                        # when it will be my opponents turn, min options
+                        min_value = min(future_values_for_this_choice)
+                        adjusted_values = [-(v - min_value) for v in future_values_for_this_choice]
+                        probs = self.softmax(adjusted_values)
+
+                    selected_index = np.random.choice(len(future_values_for_this_choice), p=probs)
+                
                 else:
-                    # when playing, make the best choice
-                    action_values[pit] = max(values_for_this_choice)
-            
+                    # not training
+                    if next_player == self.player_number:
+                        selected_index = future_values_for_this_choice.index(max(future_values_for_this_choice))
+                    
+                    else:
+                        # opponents turn
+                        selected_index = future_values_for_this_choice.index(min(future_values_for_this_choice))
+                
+                action_values[pit] = future_values_for_this_choice[selected_index]
+           
             return action_values
         
         else:
 
-            action_values = [float('-inf')] * len(current_players_pits)
-
             for pit in range(len(current_players_pits)):
-                policy_logits, value, next_state = self.model(current_state, pit)
-                policy_logits, value, final_state = self.model(next_state)
+                policy_logits, value, next_state = self.model(current_state, pit) # choosing this pit, what will the board, who's turn, and history be?
 
-                action_values[pit] = value.item()
+                next_player = PLAYER_ONE if next_state[player_index] < 0.5 else PLAYER_TWO # in that next state, who's turn is it?
 
-            return action_values
+                policy_logits, value, final_state = self.model(next_state) # with that board, turn, and history, how good is that state for the current player?
+
+                if next_player == self.player_number:
+                    # if it will be me, max choice
+                    action_values[pit] = value.item()
+                
+                else:
+                    # if it is the opponent, big is bad
+                    action_values[pit] = -value.item()
+
+            return action_values # return how good that board, turn, and state would be for each pit you can chose.
         
 
     def softmax(self, x: list[float]) -> list[float]:
