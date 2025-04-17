@@ -113,7 +113,6 @@ class AlphaMancala():
             # adjust to other side of board
             chosen_pit += (len(PLAYER_ONE_PITS) + 1)
 
-        print(f'{self.player_number} selected {chosen_pit}, ({board[chosen_pit]})')
         gui.make_move(chosen_pit)
 
     def export_model(self):

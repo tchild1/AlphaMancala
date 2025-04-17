@@ -327,7 +327,8 @@ class MancalaGUI:
                 messagebox.showinfo("Game Over", f"Game over! {winner} wins!")
                 self.play_again_question()
             else:
-                print(f"Game over! {winner} wins!")
+                if not self.is_training:
+                    print(f"Game over! {winner} wins!")
 
     def notify_next_player(self) -> None:
         '''
