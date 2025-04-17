@@ -7,7 +7,7 @@ from tqdm import tqdm
 
 
 class MancalaGUI:
-    def __init__(self, root, train=False) -> None:
+    def __init__(self, root=None, train=False) -> None:
         '''
         This fuction initializes the UI (or not if no UI is to be shown)
         regardless, this class acts as an interface between the players

@@ -3,12 +3,11 @@ from mancalaGUI import MancalaGUI
 
 def main(train):
     if train:
-        root = None
-        MancalaGUI(root, train)
+        MancalaGUI(train=train)
     else:
         import tkinter as tk
         root = tk.Tk()
-        MancalaGUI(root, train)
+        MancalaGUI(root=root, train=train)
         root.mainloop()
 
 
