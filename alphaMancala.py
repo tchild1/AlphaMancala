@@ -8,6 +8,8 @@ import torch.nn.functional as F
 import pickle
 from gameEnvironment import PLAYER_ONE_PITS, PLAYER_TWO_PITS, PLAYER_ONE, PLAYER_TWO, HISTORY_LENGTH, FUTURE_TURNS_TO_PREDICT, EXPORT_FOLDER, EXPORT_FILENAME, EXPORT_LOSSES_FILENAME
 from typing import TYPE_CHECKING
+from IPython import get_ipython
+
 
 if TYPE_CHECKING:
     from mancalaGUI import MancalaGUI
@@ -116,20 +118,49 @@ class AlphaMancala():
         gui.make_move(chosen_pit)
 
     def export_model(self):
-        # save model
+        # save model locally
+        local_model_path = os.path.join(self.model.models_directory, f'{EXPORT_FILENAME}{self.model.number_of_games}.pth')
+        local_loss_path = os.path.join(self.model.models_directory, f'{EXPORT_LOSSES_FILENAME}{self.model.number_of_games}.pkl')
+
         torch.save({
             'model_state_dict': self.model.state_dict(), 
             'optimizer_state_dict': self.model.optimizer.state_dict(),
-        }, os.path.join(self.model.models_directory, f'{EXPORT_FILENAME}{self.model.number_of_games}.pth'))
+        }, local_model_path)
 
-        # save loss histories
-        with open(os.path.join(self.model.models_directory, f'{EXPORT_LOSSES_FILENAME}{self.model.number_of_games}.pkl'), 'wb') as f:
+        with open(local_loss_path, 'wb') as f:
             pickle.dump({
                 'policy_losses': self.model.policy_losses,
                 'value_losses': self.model.value_losses,
                 'transition_losses': self.model.transition_losses,
                 'number_of_games': self.model.number_of_games
             }, f)
+
+        try:
+            in_colab = 'google.colab' in str(get_ipython())
+        except:
+            in_colab = False
+
+        # check if in Colab and Drive is mounted
+        if in_colab:
+            drive_model_dir = '/content/drive/MyDrive/MancalaModels'
+            os.makedirs(drive_model_dir, exist_ok=True)
+
+            drive_model_path = os.path.join(drive_model_dir, f'{EXPORT_FILENAME}{self.model.number_of_games}.pth')
+            drive_loss_path = os.path.join(drive_model_dir, f'{EXPORT_LOSSES_FILENAME}{self.model.number_of_games}.pkl')
+
+            # copy to Drive
+            torch.save({
+                'model_state_dict': self.model.state_dict(), 
+                'optimizer_state_dict': self.model.optimizer.state_dict(),
+            }, drive_model_path)
+
+            with open(drive_loss_path, 'wb') as f:
+                pickle.dump({
+                    'policy_losses': self.model.policy_losses,
+                    'value_losses': self.model.value_losses,
+                    'transition_losses': self.model.transition_losses,
+                    'number_of_games': self.model.number_of_games
+                }, f)
 
 
 
