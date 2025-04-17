@@ -9,9 +9,6 @@ import pickle
 from gameEnvironment import PLAYER_ONE_PITS, PLAYER_TWO_PITS, PLAYER_ONE, PLAYER_TWO, HISTORY_LENGTH, FUTURE_TURNS_TO_PREDICT, EXPORT_FOLDER, EXPORT_FILENAME, EXPORT_LOSSES_FILENAME
 from typing import TYPE_CHECKING
 from IPython import get_ipython
-from google.colab import drive
-drive.mount('/content/drive')
-
 
 if TYPE_CHECKING:
     from mancalaGUI import MancalaGUI
