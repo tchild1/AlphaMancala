@@ -4,6 +4,7 @@ from gameEnvironment import PLAYER_ONE, PLAYER_TWO, PLAYER_ONE_PITS, PLAYER_TWO_
 import torch.nn.functional as F
 import torch
 from tqdm import tqdm
+import sys
 
 
 class MancalaGUI:
@@ -78,7 +79,7 @@ class MancalaGUI:
         '''
         This function is called when the user does not request to play again.
         '''
-        exit()
+        sys.exit()
 
     def create_play_type_prompt(self) -> None:
         '''
@@ -232,7 +233,7 @@ class MancalaGUI:
         self.player_one.export_model()
         self.is_training = False
         
-        exit()
+        sys.exit()
 
 
     def create_ui(self) -> None:
@@ -317,7 +318,7 @@ class MancalaGUI:
             else:
                 print('Invalid Move: ', result)
                 print('Cannot handle wrong move')
-                exit()
+                sys.exit()
 
         if not self.is_training:
             self.update_board()

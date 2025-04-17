@@ -9,6 +9,7 @@ import pickle
 from gameEnvironment import PLAYER_ONE_PITS, PLAYER_TWO_PITS, PLAYER_ONE, PLAYER_TWO, HISTORY_LENGTH, FUTURE_TURNS_TO_PREDICT, EXPORT_FOLDER, EXPORT_FILENAME, EXPORT_LOSSES_FILENAME
 from typing import TYPE_CHECKING
 from IPython import get_ipython
+import sys
 
 if TYPE_CHECKING:
     from mancalaGUI import MancalaGUI
@@ -260,7 +261,7 @@ class AlphaMancalaMind(nn.Module):
                         
                 else:
                     print(f"{EXPORT_FILENAME}{model_number_to_use}.pth doesn't exist")
-                    exit()
+                    sys.exit()
 
             else:
                 # if no number is given, assume the latest model
