@@ -140,8 +140,6 @@ class AlphaMancala():
         except:
             in_colab = False
 
-        print(f'in colab: {in_colab}')
-
         # check if in Colab and Drive is mounted
         if in_colab:
             drive_model_dir = '/content/drive/MyDrive/MancalaModels'
@@ -163,8 +161,6 @@ class AlphaMancala():
                     'transition_losses': self.model.transition_losses,
                     'number_of_games': self.model.number_of_games
                 }, f)
-
-            print(f'output to: {drive_loss_path}')
 
 
 

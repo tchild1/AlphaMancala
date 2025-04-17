@@ -14,7 +14,7 @@ class MancalaGUI:
         regardless, this class acts as an interface between the players
         and the game logic.
         '''
-        print('in GUI\n')
+        
         self.is_training: bool = train
         self.game: MancalaGame = MancalaGame()
 
