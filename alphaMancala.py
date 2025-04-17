@@ -162,6 +162,8 @@ class AlphaMancala():
                     'number_of_games': self.model.number_of_games
                 }, f)
 
+            print(f'output to: {drive_loss_path}')
+
 
 
 class AlphaMancalaMind(nn.Module):
