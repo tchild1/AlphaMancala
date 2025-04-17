@@ -13,20 +13,19 @@ class MancalaGUI:
         regardless, this class acts as an interface between the players
         and the game logic.
         '''
-        if not train:
+
+        self.is_training: bool = train
+        self.game: MancalaGame = MancalaGame()
+
+        if not self.is_training:
             # when training do not use the UI. 
             import tkinter as tk
             self.tk = tk
             self.root: tk.Tk = root
-
-        self.game: MancalaGame = MancalaGame()
-        self.is_training: bool = train
-
-        if train:
-            self.train()
-        else:
             self.create_play_type_prompt()
-
+        else:
+            self.train()
+        
 
     def take_turn(self) -> None:
         '''
@@ -171,7 +170,6 @@ class MancalaGUI:
         '''
         This function is called to train the model.
         '''
-        self.is_training = True
 
         self.player_one = AlphaMancala(PLAYER_ONE, self.is_training)
         self.player_two = AlphaMancala(PLAYER_TWO, self.is_training)
