@@ -51,6 +51,7 @@ class AlphaMancala():
         
 
     def get_future_values(self, current_state, num_turns_in_advance):
+        # future: also consider stopping recursive calls when the game is over
 
         # where in the state is the player turn flag
         player_index = len(PLAYER_ONE_PITS) + len(PLAYER_TWO_PITS) + 2
@@ -65,40 +66,50 @@ class AlphaMancala():
         if num_turns_in_advance > 1:
 
             for pit in current_players_pits:
-                # for each choice in pit
-                policy_logits, value, next_state = self.model(current_state, pit) # given this state (board, turn, and history), what will the state (board, turn, and history) be if the the current player chooses this pit?
-                
-                next_player = PLAYER_ONE if next_state[player_index] < 0.5 else PLAYER_TWO # in that next state, who's turn is it?
-                
-                future_values_for_this_choice = self.get_future_values(next_state, num_turns_in_advance-1) # this evaluatates how good each option is for the current player
-                
-                if self.is_training:
-                    # if training use softmax to explore better
 
-                    if next_player == self.player_number:
-                        # when I go again, max of options
-                        probs = self.softmax(future_values_for_this_choice)
+                if current_state[pit] < 0.01:
+                    # if there is not a token in this pit, it is not an option.
 
-                    else:
-                        # when it will be my opponents turn, min options
-                        inverted_values = [-v for v in future_values_for_this_choice]
-                        probs = self.softmax(inverted_values)
+                    if current_player == PLAYER_TWO:
+                        pit = (pit - len(PLAYER_TWO_PITS) - 1)
+                    action_values[pit] = 1e-9
 
-                    selected_index = np.random.choice(len(future_values_for_this_choice), p=probs)
-                
                 else:
-                    # not training
-                    if next_player == self.player_number:
-                        selected_index = future_values_for_this_choice.index(max(future_values_for_this_choice))
+
+                    # for each choice in pit
+                    policy_logits, value, next_state = self.model(current_state, pit) # given this state (board, turn, and history), what will the state (board, turn, and history) be if the the current player chooses this pit?
+                    
+                    next_player = PLAYER_ONE if next_state[player_index] < 0.5 else PLAYER_TWO # in that next state, who's turn is it?
+                    
+                    future_values_for_this_choice = self.get_future_values(next_state, num_turns_in_advance-1) # this evaluatates how good each option is for the current player
+                    
+                    if self.is_training:
+                        # if training use softmax to explore better
+
+                        if next_player == self.player_number:
+                            # when I go again, max of options
+                            probs = self.softmax(future_values_for_this_choice)
+
+                        else:
+                            # when it will be my opponents turn, min options
+                            inverted_values = [-v for v in future_values_for_this_choice]
+                            probs = self.softmax(inverted_values)
+
+                        selected_index = np.random.choice(len(future_values_for_this_choice), p=probs)
                     
                     else:
-                        # opponents turn
-                        selected_index = future_values_for_this_choice.index(min(future_values_for_this_choice))
+                        # not training
+                        if next_player == self.player_number:
+                            selected_index = future_values_for_this_choice.index(max(future_values_for_this_choice))
+                        
+                        else:
+                            # opponents turn
+                            selected_index = future_values_for_this_choice.index(min(future_values_for_this_choice))
 
-                if current_player == PLAYER_TWO:
-                    pit = (pit - len(PLAYER_TWO_PITS) - 1)
+                    if current_player == PLAYER_TWO:
+                        pit = (pit - len(PLAYER_TWO_PITS) - 1)
 
-                action_values[pit] = future_values_for_this_choice[selected_index]
+                    action_values[pit] = future_values_for_this_choice[selected_index]
            
             return action_values
         
