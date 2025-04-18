@@ -56,6 +56,7 @@ class AlphaMancala():
         player_index = len(PLAYER_ONE_PITS) + len(PLAYER_TWO_PITS) + 2
 
         # who is the current player according to the state?
+        current_player = PLAYER_ONE if current_state[player_index] < 0.5 else PLAYER_TWO
         current_players_pits = PLAYER_ONE_PITS if current_state[player_index] < 0.5 else PLAYER_TWO_PITS
 
         # init to -inf for all choices
@@ -63,7 +64,7 @@ class AlphaMancala():
 
         if num_turns_in_advance > 1:
 
-            for pit in range(len(current_players_pits)):
+            for pit in current_players_pits:
                 # for each choice in pit
                 policy_logits, value, next_state = self.model(current_state, pit) # given this state (board, turn, and history), what will the state (board, turn, and history) be if the the current player chooses this pit?
                 
@@ -94,19 +95,25 @@ class AlphaMancala():
                     else:
                         # opponents turn
                         selected_index = future_values_for_this_choice.index(min(future_values_for_this_choice))
-                
+
+                if current_player == PLAYER_TWO:
+                    pit = (pit - len(PLAYER_TWO_PITS) - 1)
+
                 action_values[pit] = future_values_for_this_choice[selected_index]
            
             return action_values
         
         else:
 
-            for pit in range(len(current_players_pits)):
+            for pit in current_players_pits:
                 policy_logits, value, next_state = self.model(current_state, pit) # choosing this pit, what will the board, who's turn, and history be?
 
                 next_player = PLAYER_ONE if next_state[player_index] < 0.5 else PLAYER_TWO # in that next state, who's turn is it?
 
                 policy_logits, value, final_state = self.model(next_state) # with that board, turn, and history, how good is that state for the current player?
+
+                if current_player == PLAYER_TWO:
+                    pit = (pit - len(PLAYER_TWO_PITS) - 1)
 
                 if next_player == self.player_number:
                     # if it will be me, max choice
@@ -139,7 +146,7 @@ class AlphaMancala():
 
         if self.player_number == PLAYER_TWO:
             # adjust to other side of board
-            chosen_pit += (len(PLAYER_ONE_PITS) + 1)
+            chosen_pit = (chosen_pit + len(PLAYER_ONE_PITS) + 1)
 
         gui.make_move(chosen_pit)
 
