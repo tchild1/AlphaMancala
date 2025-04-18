@@ -81,9 +81,8 @@ class AlphaMancala():
 
                     else:
                         # when it will be my opponents turn, min options
-                        min_value = min(future_values_for_this_choice)
-                        adjusted_values = [-(v - min_value) for v in future_values_for_this_choice]
-                        probs = self.softmax(adjusted_values)
+                        inverted_values = [-v for v in future_values_for_this_choice]
+                        probs = self.softmax(inverted_values)
 
                     selected_index = np.random.choice(len(future_values_for_this_choice), p=probs)
                 
