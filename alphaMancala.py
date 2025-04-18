@@ -60,8 +60,8 @@ class AlphaMancala():
         current_player = PLAYER_ONE if current_state[player_index] < 0.5 else PLAYER_TWO
         current_players_pits = PLAYER_ONE_PITS if current_state[player_index] < 0.5 else PLAYER_TWO_PITS
 
-        # init to -inf for all choices
-        action_values = [float('-inf')] * len(current_players_pits)
+        # init to -inf for all choices (very unlikely)
+        action_values = [1e-9] * len(current_players_pits)
 
         if num_turns_in_advance > 1:
 
