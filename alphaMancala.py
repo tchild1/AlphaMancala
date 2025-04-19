@@ -158,6 +158,9 @@ class AlphaMancala():
             # adjust to other side of board
             chosen_pit = (chosen_pit + len(PLAYER_ONE_PITS) + 1)
 
+        if not self.is_training:
+            print('bot moved: ', chosen_pit)
+
         gui.make_move(chosen_pit)
 
     def export_model(self):
