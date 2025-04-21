@@ -228,7 +228,7 @@ class AlphaMancalaMind(nn.Module):
         return cls._instance
        
 
-    def __init__(self, hidden_size=128, lr=0.001, model_number_to_use=None) -> None:
+    def __init__(self, hidden_size=256, lr=0.001, model_number_to_use=None) -> None:
         '''
         Constructor for the neural network.
         Initializes the architecture.
@@ -256,6 +256,8 @@ class AlphaMancalaMind(nn.Module):
         # network that encodes board information for all heads
         self.encoder = nn.Sequential(
             nn.Linear(input_size, hidden_size),
+            nn.ReLU(),
+            nn.Linear(hidden_size, hidden_size),
             nn.ReLU(),
             nn.Linear(hidden_size, hidden_size),
             nn.ReLU()

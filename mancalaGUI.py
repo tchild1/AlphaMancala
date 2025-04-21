@@ -219,11 +219,12 @@ class MancalaGUI:
                 # policy loss: teaches which actions were taken in those states
                 # value loss: teaches which states are good or bad
                 # transition loss: teaches to predict the next state for an action
-                total_loss = policy_loss + value_loss + transition_loss
 
                 # optimize model
                 model.optimizer.zero_grad()
-                total_loss.backward()
+                policy_loss.backward(retain_graph=True)
+                value_loss.backward(retain_graph=True)
+                transition_loss.backward()  # last one can free the graph
                 model.optimizer.step()
 
 
